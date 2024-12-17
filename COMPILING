@@ -58,6 +58,7 @@ environment:
 
 build:
 run 'make'
+make DEPENDENCIES_CHECK=off CPPFLAGS_QTGUI="-F/opt/homebrew/Cellar/qt@5/5.15.16/lib/QtGui.framework -F/opt/homebrew/Cellar/qt@5/5.15.16/lib/QtCore.framework -I/opt/homebrew/Cellar/qt@5/5.15.16/lib/QtGui.framework/Headers -I/opt/homebrew/Cellar/qt@5/5.15.16/lib/QtCore.framework/Headers" CPPFLAGS_QTWIDGETS="-F/opt/homebrew/Cellar/qt@5/5.15.16/Frameworks -I/opt/homebrew/Cellar/qt@5/5.15.16/lib/QtCore.framework/Headers -I/opt/homebrew/Cellar/qt@5/5.15.16/lib/QtGui.framework/Headers -I/opt/homebrew/Cellar/qt@5/5.15.16/lib/QtWidgets.framework/Headers" LIBS_QTWIDGETS="-F/opt/homebrew/Cellar/qt@5/5.15.16/Frameworks -framework QtCore -framework QtWidgets -framework QtGui"
 
 homebrew build:
 run 'export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/opt/X11/lib/pkgconfig

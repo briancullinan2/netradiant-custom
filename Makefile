@@ -19,8 +19,8 @@ RADIANT_ABOUTMSG   ?= Custom build
 # NEVER SET THIS TO A SYSTEM WIDE "bin" DIRECTORY!
 INSTALLDIR         ?= install
 
-CC                 ?= gcc
-CXX                ?= g++
+CC                 = /opt/homebrew/Cellar/llvm/19.1.5/bin/clang
+CXX                = /opt/homebrew/Cellar/llvm/19.1.5/bin/clang++
 RANLIB             ?= ranlib
 AR                 ?= ar
 LDD                ?= ldd # nothing on Win32
@@ -70,15 +70,15 @@ CPPFLAGS_PNG       ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) li
 LIBS_PNG           ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) libpng --libs-only-L --libs-only-l $(STDERR_TO_DEVNULL))
 CPPFLAGS_PNG       := $(CPPFLAGS_PNG)
 LIBS_PNG           := $(LIBS_PNG)
-CPPFLAGS_QTCORE    ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) Qt5Core --cflags $(STDERR_TO_DEVNULL)) -DQT_NO_KEYWORDS
+CPPFLAGS_QTCORE    ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) Qt5Core --cflags $(STDERR_TO_DEVNULL))
 LIBS_QTCORE        ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) Qt5Core --libs-only-L --libs-only-l $(STDERR_TO_DEVNULL))
 CPPFLAGS_QTCORE    := $(CPPFLAGS_QTCORE)
 LIBS_QTCORE        := $(LIBS_QTCORE)
-CPPFLAGS_QTGUI     ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) Qt5Gui --cflags $(STDERR_TO_DEVNULL)) -DQT_NO_KEYWORDS
+CPPFLAGS_QTGUI     ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) Qt5Gui --cflags $(STDERR_TO_DEVNULL))
 LIBS_QTGUI         ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) Qt5Gui --libs-only-L --libs-only-l $(STDERR_TO_DEVNULL))
 CPPFLAGS_QTGUI     := $(CPPFLAGS_QTGUI)
 LIBS_QTGUI         := $(LIBS_QTGUI)
-CPPFLAGS_QTWIDGETS ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) Qt5Widgets --cflags $(STDERR_TO_DEVNULL)) -DQT_NO_KEYWORDS
+CPPFLAGS_QTWIDGETS ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) Qt5Widgets --cflags $(STDERR_TO_DEVNULL))
 LIBS_QTWIDGETS     ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) Qt5Widgets --libs-only-L --libs-only-l $(STDERR_TO_DEVNULL))
 CPPFLAGS_QTWIDGETS := $(CPPFLAGS_QTWIDGETS)
 LIBS_QTWIDGETS     := $(LIBS_QTWIDGETS)
@@ -86,10 +86,10 @@ CPPFLAGS_GL        ?=
 LIBS_GL            ?= -lGL # -lopengl32 on Win32
 CPPFLAGS_DL        ?=
 LIBS_DL            ?= -ldl # nothing on Win32
-CPPFLAGS_ZLIB      ?=
-LIBS_ZLIB          ?= -lz
-CPPFLAGS_JPEG      ?=
-LIBS_JPEG          ?= -ljpeg
+CPPFLAGS_ZLIB       ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) zlib --cflags $(STDERR_TO_DEVNULL))
+LIBS_ZLIB           ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) zlib --libs-only-L --libs-only-l $(STDERR_TO_DEVNULL))
+CPPFLAGS_JPEG       ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) libjpeg --cflags $(STDERR_TO_DEVNULL))
+LIBS_JPEG           ?= $(shell PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(PKGCONFIG) libjpeg --libs-only-L --libs-only-l $(STDERR_TO_DEVNULL))
 DEPEND_ON_MAKEFILE ?= yes
 # yes = download; all = even download undistributable gamepacks; no = disable; allinone = dl all-in-one compact fixed archive
 DOWNLOAD_GAMEPACKS ?= allinone
@@ -842,7 +842,7 @@ libetclib.$(A): \
 
 $(INSTALLDIR)/radiant.$(EXE): LDFLAGS_EXTRA := $(MWINDOWS)
 $(INSTALLDIR)/radiant.$(EXE): LIBS_EXTRA := $(LIBS_GL) $(LIBS_DL) $(LIBS_XML) $(LIBS_GLIB) $(LIBS_QTWIDGETS) $(LIBS_ZLIB)
-$(INSTALLDIR)/radiant.$(EXE): CPPFLAGS_EXTRA := $(CPPFLAGS_GL) $(CPPFLAGS_DL) $(CPPFLAGS_XML) $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -Ilibs -Iinclude
+$(INSTALLDIR)/radiant.$(EXE): CPPFLAGS_EXTRA := $(CPPFLAGS_GL) $(CPPFLAGS_DL) $(CPPFLAGS_XML) $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -DQT_NO_KEYWORDS -Ilibs -Iinclude
 $(INSTALLDIR)/radiant.$(EXE): \
 	radiant/autosave.o \
 	radiant/brushmanip.o \
@@ -942,7 +942,7 @@ libcommandlib.$(A): CPPFLAGS_EXTRA := -Ilibs
 libcommandlib.$(A): \
 	libs/commandlib.o \
 
-libgtkutil.$(A): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -Ilibs -Iinclude
+libgtkutil.$(A): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -DQT_NO_KEYWORDS -Ilibs -Iinclude
 libgtkutil.$(A): \
 	libs/gtkutil/accelerator.o \
 	libs/gtkutil/clipboard.o \
@@ -993,7 +993,7 @@ $(INSTALLDIR)/modules/archivepak.$(DLL): \
 	plugins/archivepak/pak.o \
 	plugins/archivepak/plugin.o \
 
-$(INSTALLDIR)/modules/entity.$(DLL): CPPFLAGS_EXTRA := -Ilibs -Iinclude $(CPPFLAGS_QTGUI)
+$(INSTALLDIR)/modules/entity.$(DLL): CPPFLAGS_EXTRA := -Ilibs -Iinclude $(CPPFLAGS_QTGUI) -DQT_NO_KEYWORDS
 $(INSTALLDIR)/modules/entity.$(DLL): \
 	plugins/entity/angle.o \
 	plugins/entity/angles.o \
@@ -1064,7 +1064,7 @@ ifneq ($(OS),Win32)
 $(INSTALLDIR)/modules/assmodel.$(DLL): LDFLAGS_EXTRA := -Wl,-rpath '-Wl,$$ORIGIN/..'
 endif
 $(INSTALLDIR)/modules/assmodel.$(DLL): LIBS_EXTRA := -lassimp_ -L$(INSTALLDIR)
-$(INSTALLDIR)/modules/assmodel.$(DLL): CPPFLAGS_EXTRA := -Ilibs -Iinclude -Ilibs/assimp/include $(CPPFLAGS_QTGUI)
+$(INSTALLDIR)/modules/assmodel.$(DLL): CPPFLAGS_EXTRA := -Ilibs -Iinclude -Ilibs/assimp/include $(CPPFLAGS_QTGUI) -DQT_NO_KEYWORDS
 $(INSTALLDIR)/modules/assmodel.$(DLL): \
 	plugins/assmodel/mdlimage.o \
 	plugins/assmodel/model.o \
@@ -1087,7 +1087,7 @@ $(INSTALLDIR)/modules/vfspk3.$(DLL): \
 	libfilematch.$(A) \
 
 $(INSTALLDIR)/plugins/bobtoolz.$(DLL): LIBS_EXTRA := $(LIBS_GLIB) $(LIBS_QTWIDGETS)
-$(INSTALLDIR)/plugins/bobtoolz.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -Ilibs -Iinclude
+$(INSTALLDIR)/plugins/bobtoolz.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTGUI) $(CPPFLAGS_QTWIDGETS) -DQT_NO_KEYWORDS -Ilibs -Iinclude
 $(INSTALLDIR)/plugins/bobtoolz.$(DLL): \
 	contrib/bobtoolz/bobToolz-GTK.o \
 	contrib/bobtoolz/bsploader.o \
@@ -1116,7 +1116,7 @@ $(INSTALLDIR)/plugins/bobtoolz.$(DLL): \
 	libmathlib.$(A) \
 
 $(INSTALLDIR)/plugins/brushexport.$(DLL): LIBS_EXTRA := $(LIBS_GLIB) $(LIBS_QTWIDGETS)
-$(INSTALLDIR)/plugins/brushexport.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -Ilibs -Iinclude
+$(INSTALLDIR)/plugins/brushexport.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -DQT_NO_KEYWORDS -Ilibs -Iinclude
 $(INSTALLDIR)/plugins/brushexport.$(DLL): \
 	contrib/brushexport/callbacks.o \
 	contrib/brushexport/export.o \
@@ -1124,7 +1124,7 @@ $(INSTALLDIR)/plugins/brushexport.$(DLL): \
 	contrib/brushexport/plugin.o \
 
 $(INSTALLDIR)/plugins/prtview.$(DLL): LIBS_EXTRA := $(LIBS_GLIB) $(LIBS_QTWIDGETS)
-$(INSTALLDIR)/plugins/prtview.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -Ilibs -Iinclude
+$(INSTALLDIR)/plugins/prtview.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -DQT_NO_KEYWORDS -Ilibs -Iinclude
 $(INSTALLDIR)/plugins/prtview.$(DLL): \
 	contrib/prtview/AboutDialog.o \
 	contrib/prtview/ConfigDialog.o \
@@ -1133,13 +1133,13 @@ $(INSTALLDIR)/plugins/prtview.$(DLL): \
 	contrib/prtview/prtview.o \
 
 $(INSTALLDIR)/plugins/shaderplug.$(DLL): LIBS_EXTRA := $(LIBS_GLIB) $(LIBS_QTWIDGETS) $(LIBS_XML)
-$(INSTALLDIR)/plugins/shaderplug.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) $(CPPFLAGS_XML) -Ilibs -Iinclude
+$(INSTALLDIR)/plugins/shaderplug.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) $(CPPFLAGS_XML) -DQT_NO_KEYWORDS -Ilibs -Iinclude
 $(INSTALLDIR)/plugins/shaderplug.$(DLL): \
 	contrib/shaderplug/shaderplug.o \
 	libxmllib.$(A) \
 
 $(INSTALLDIR)/plugins/sunplug.$(DLL): LIBS_EXTRA := $(LIBS_GLIB) $(LIBS_QTWIDGETS)
-$(INSTALLDIR)/plugins/sunplug.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -Ilibs -Iinclude
+$(INSTALLDIR)/plugins/sunplug.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -DQT_NO_KEYWORDS -Ilibs -Iinclude
 $(INSTALLDIR)/plugins/sunplug.$(DLL): \
 	contrib/sunplug/sunplug.o \
 
@@ -1206,7 +1206,7 @@ $(INSTALLDIR)/q2map.$(EXE): \
 	$(if $(findstring Win32,$(OS)),icons/q2map.o,) \
 
 $(INSTALLDIR)/plugins/ufoaiplug.$(DLL): LIBS_EXTRA := $(LIBS_GLIB) $(LIBS_QTWIDGETS)
-$(INSTALLDIR)/plugins/ufoaiplug.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -Ilibs -Iinclude
+$(INSTALLDIR)/plugins/ufoaiplug.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -DQT_NO_KEYWORDS -Ilibs -Iinclude
 $(INSTALLDIR)/plugins/ufoaiplug.$(DLL): \
 	contrib/ufoaiplug/ufoai_filters.o \
 	contrib/ufoaiplug/ufoai_gtk.o \
@@ -1214,7 +1214,7 @@ $(INSTALLDIR)/plugins/ufoaiplug.$(DLL): \
 	contrib/ufoaiplug/ufoai.o \
 
 $(INSTALLDIR)/plugins/meshtex.$(DLL): LIBS_EXTRA := $(LIBS_GLIB) $(LIBS_QTWIDGETS)
-$(INSTALLDIR)/plugins/meshtex.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -Ilibs -Iinclude
+$(INSTALLDIR)/plugins/meshtex.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -DQT_NO_KEYWORDS -Ilibs -Iinclude
 $(INSTALLDIR)/plugins/meshtex.$(DLL): \
 	contrib/meshtex/GeneralFunctionDialog.o \
 	contrib/meshtex/GenericDialog.o \
@@ -1231,7 +1231,7 @@ $(INSTALLDIR)/plugins/meshtex.$(DLL): \
 	contrib/meshtex/SetScaleDialog.o \
 
 $(INSTALLDIR)/plugins/bkgrnd2d.$(DLL): LIBS_EXTRA := $(LIBS_GLIB) $(LIBS_QTWIDGETS)
-$(INSTALLDIR)/plugins/bkgrnd2d.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -Ilibs -Iinclude
+$(INSTALLDIR)/plugins/bkgrnd2d.$(DLL): CPPFLAGS_EXTRA := $(CPPFLAGS_GLIB) $(CPPFLAGS_QTWIDGETS) -DQT_NO_KEYWORDS -Ilibs -Iinclude
 $(INSTALLDIR)/plugins/bkgrnd2d.$(DLL): \
 	contrib/bkgrnd2d/bkgrnd2d.o \
 	contrib/bkgrnd2d/dialog.o \
